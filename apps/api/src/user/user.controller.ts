@@ -17,6 +17,7 @@ import Session from 'supertokens-node/recipe/session';
 import Passwordless from 'supertokens-node/recipe/passwordless';
 import { Request, Response } from 'express';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { BookmarksDto } from './dto/bookmarks.dto';
 
 @UseGuards(AuthGuard)
 @Controller('user')
@@ -25,12 +26,10 @@ export class UserController {
 
   @Get()
   async read(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    let phone: string;
     let authid: string;
     try {
       const session = await Session.getSession(req, res);
       authid = session.getUserId();
-      phone = (await Passwordless.getUserById({ userId: authid })).phoneNumber;
     } catch (err) {
       throw new HttpException(
         {
@@ -69,7 +68,7 @@ export class UserController {
       let userProfile = createUserDto;
       userProfile.authid = authid;
       userProfile.phone = phone;
-      return this.userService.get(userProfile);
+      return this.userService.create(userProfile);
     } else {
       throw new HttpException(
         {
@@ -89,11 +88,9 @@ export class UserController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    let phone: string;
     try {
       const session = await Session.getSession(req, res);
       authid = session.getUserId();
-      phone = (await Passwordless.getUserById({ userId: authid })).phoneNumber;
     } catch (err) {
       throw new HttpException(
         {
@@ -104,5 +101,49 @@ export class UserController {
       );
     }
     return this.userService.update(authid, updateUserDto);
+  }
+
+  @Get('bookmark')
+  async getBookmarks(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    let authid: string;
+    try {
+      const session = await Session.getSession(req, res);
+      authid = session.getUserId();
+    } catch (err) {
+      throw new HttpException(
+        {
+          success: false,
+          error: 'Session not available',
+        },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+    return this.userService.getBookmarks(authid);
+  }
+
+  @Patch('bookmark')
+  async addBookmark(
+    @Body()
+    bookamrksDto: BookmarksDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    let authid: string;
+    try {
+      const session = await Session.getSession(req, res);
+      authid = session.getUserId();
+    } catch (err) {
+      throw new HttpException(
+        {
+          success: false,
+          error: 'Session not available',
+        },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+    return this.userService.addBookmark(authid, bookamrksDto);
   }
 }
