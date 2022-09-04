@@ -1,0 +1,9 @@
+{
+    "name":"Markify",
+    "version":"0.1",
+    "manifest_version":3,
+    "action": {
+        "default_popup":"popup.html"
+    },
+    "permissions": ["activeTab","http://localhost:8000/*"]
+}

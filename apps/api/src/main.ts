@@ -10,6 +10,7 @@ async function bootstrap() {
     allowedHeaders: ['content-type', ...supertokens.getAllCORSHeaders()],
     credentials: true,
   });
+
   app.useGlobalFilters(new SupertokensExceptionFilter());
   await app.listen(8000);
 }
